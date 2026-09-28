@@ -52,8 +52,9 @@ def download_video_and_tokens(drive_service, main_folder_id):
     game_folder_id = find_or_create_folder(drive_service, TARGET_GAME, ready_folder_id, False)
     if not game_folder_id: raise Exception(f"❌ '{TARGET_GAME}' فولڈر نہیں ملا۔")
 
+    # 🛠️ اہم فکس: Uploaded_Success فولڈر کو اگنور کرنے کی کمانڈ شامل کر دی گئی ہے
     video_folders = drive_service.files().list(
-        q=f"'{game_folder_id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false", 
+        q=f"'{game_folder_id}' in parents and mimeType='application/vnd.google-apps.folder' and name != 'Uploaded_Success' and trashed=false", 
         fields='files(id, name)'
     ).execute().get('files', [])
     
@@ -82,7 +83,6 @@ def download_video_and_tokens(drive_service, main_folder_id):
                 while not done: _, done = downloader.next_chunk()
             print(f"📥 فائل ڈاؤنلوڈ ہو گئی: {filename}")
 
-    # 🚀 BULLETPROOF TOKEN FINDER: پورے ڈرائیو میں جہاں بھی 'token' فائل ہو، اسے ڈاؤنلوڈ کر لو
     token_files = drive_service.files().list(
         q="name contains 'token' and trashed=false", 
         fields='files(id, name)'
